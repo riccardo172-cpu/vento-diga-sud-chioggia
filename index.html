@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -201,7 +202,7 @@ body {
   transform: translateY(-50%);
 }
 
-/* tacche */
+/* TACCHETTE */
 
 .tick {
   position: absolute;
@@ -299,6 +300,32 @@ body {
   background: #4fc3df;
   border-radius: 50%;
   box-shadow: 0 0 8px #4fc3df;
+}
+
+/* STATO DI AVVISO */
+
+.live.warning {
+  color: #f0b85a;
+  background: rgba(180, 120, 20, 0.12);
+  border-color: rgba(240, 184, 90, 0.25);
+}
+
+.live.warning .live-dot {
+  background: #f0b85a;
+  box-shadow: 0 0 8px #f0b85a;
+}
+
+/* STATO DI ERRORE */
+
+.live.error {
+  color: #ff7373;
+  background: rgba(180, 40, 40, 0.12);
+  border-color: rgba(255, 100, 100, 0.25);
+}
+
+.live.error .live-dot {
+  background: #ff7373;
+  box-shadow: 0 0 8px #ff7373;
 }
 
 /* FOOTER */
@@ -435,16 +462,19 @@ body {
 const WORKER_URL =
   "https://vento-diga-sud.riccardo172.workers.dev/";
 
+
 function formatTimestamp(timestamp) {
 
   if (!timestamp) {
     return "--";
   }
 
-  // Il dato della stazione è espresso sempre in CET (UTC+1).
-  const fixedCET = timestamp.replace(" ", "T") + "+01:00";
+  // La stazione del Comune utilizza sempre UTC+1.
+  const fixedCET =
+    timestamp.replace(" ", "T") + "+01:00";
 
-  const date = new Date(fixedCET);
+  const date =
+    new Date(fixedCET);
 
   if (isNaN(date.getTime())) {
     return timestamp;
@@ -462,72 +492,274 @@ function formatTimestamp(timestamp) {
 }
 
 
+function getTimestampDate(timestamp) {
+
+  if (!timestamp) {
+    return null;
+  }
+
+  // La stazione del Comune utilizza sempre UTC+1.
+  const fixedCET =
+    timestamp.replace(" ", "T") + "+01:00";
+
+  const date =
+    new Date(fixedCET);
+
+  if (isNaN(date.getTime())) {
+    return null;
+  }
+
+  return date;
+}
+
+
+function clearWindValues() {
+
+  document.getElementById("windKnots").textContent =
+    "--";
+
+  document.getElementById("windMs").textContent =
+    "--";
+
+  document.getElementById("maxKnots").textContent =
+    "--";
+
+  document.getElementById("maxMs").textContent =
+    "--";
+
+  document.getElementById("directionName").textContent =
+    "--";
+
+  document.getElementById("directionDegrees").textContent =
+    "--";
+
+  document.getElementById("arrow").style.transform =
+    "rotate(0deg)";
+}
+
+
+function setStatus(type, text) {
+
+  const status =
+    document.querySelector(".live");
+
+  status.classList.remove("warning");
+  status.classList.remove("error");
+
+  status.textContent = "";
+
+  const dot =
+    document.createElement("span");
+
+  dot.className = "live-dot";
+
+  status.appendChild(dot);
+
+  status.appendChild(
+    document.createTextNode(text)
+  );
+
+  if (type === "warning") {
+    status.classList.add("warning");
+  }
+
+  if (type === "error") {
+    status.classList.add("error");
+  }
+}
+
+
 async function loadData() {
 
   try {
 
-    const response = await fetch(
-      WORKER_URL + "?t=" + Date.now(),
-      {
-        cache: "no-store"
-      }
-    );
+    const response =
+      await fetch(
+        WORKER_URL + "?t=" + Date.now(),
+        {
+          cache: "no-store"
+        }
+      );
 
     if (!response.ok) {
-      throw new Error("Errore HTTP " + response.status);
+
+      throw new Error(
+        "Errore HTTP " + response.status
+      );
+
     }
 
-    const result = await response.json();
+    const result =
+      await response.json();
 
     if (!result.ok) {
-      throw new Error(result.error || "Errore dati");
+
+      throw new Error(
+        result.error || "Errore dati"
+      );
+
     }
 
-    const data = result.data;
+    const data =
+      result.data;
+
+
+    /* CONTROLLO VALORI NUMERICI */
+
+    const windKnots =
+      Number(data.windKnots);
+
+    const windMs =
+      Number(data.windMs);
+
+    const maxKnots =
+      Number(data.maxKnots);
+
+    const maxMs =
+      Number(data.maxMs);
+
+    const direction =
+      Number(data.direction);
+
+
+    if (
+      !Number.isFinite(windKnots) ||
+      !Number.isFinite(windMs) ||
+      !Number.isFinite(maxKnots) ||
+      !Number.isFinite(maxMs) ||
+      !Number.isFinite(direction)
+    ) {
+
+      throw new Error(
+        "Dati vento non validi"
+      );
+
+    }
+
+
+    /* CONTROLLO TIMESTAMP */
+
+    const dataDate =
+      getTimestampDate(
+        data.timestamp
+      );
+
+
+    if (!dataDate) {
+
+      throw new Error(
+        "Timestamp non valido"
+      );
+
+    }
+
+
+    /*
+      Calcoliamo quanti minuti sono passati
+      dalla registrazione della stazione.
+    */
+
+    const ageMinutes =
+      (Date.now() - dataDate.getTime()) / 60000;
+
+
+    /*
+      Il dato viene considerato non affidabile se:
+
+      - è nel futuro
+      - oppure è più vecchio di 15 minuti
+    */
+
+    if (
+      ageMinutes < 0 ||
+      ageMinutes > 15
+    ) {
+
+      clearWindValues();
+
+      document.getElementById("timestamp").textContent =
+        formatTimestamp(
+          data.timestamp
+        );
+
+      setStatus(
+        "warning",
+        "DATI NON AGGIORNATI"
+      );
+
+      return;
+    }
+
+
+    /* DATI VALIDI */
 
     document.getElementById("windKnots").textContent =
-      Number(data.windKnots).toFixed(1);
+      windKnots.toFixed(1);
 
     document.getElementById("windMs").textContent =
-      Number(data.windMs).toFixed(1);
+      windMs.toFixed(1);
 
     document.getElementById("maxKnots").textContent =
-      Number(data.maxKnots).toFixed(1);
+      maxKnots.toFixed(1);
 
     document.getElementById("maxMs").textContent =
-      Number(data.maxMs).toFixed(1);
+      maxMs.toFixed(1);
 
     document.getElementById("directionName").textContent =
-      data.directionName;
+      data.directionName || "--";
 
     document.getElementById("directionDegrees").textContent =
-      Math.round(data.direction);
+      Math.round(direction);
 
     document.getElementById("arrow").style.transform =
-      "rotate(" + Number(data.direction) + "deg)";
+      "rotate(" + direction + "deg)";
 
     document.getElementById("timestamp").textContent =
-      formatTimestamp(data.timestamp);
+      formatTimestamp(
+        data.timestamp
+      );
+
+    setStatus(
+      "ok",
+      "DATI AGGIORNATI"
+    );
+
 
   } catch (error) {
 
     console.error(error);
 
-    document.getElementById("directionName").textContent =
-      "ERRORE DATI";
+    /*
+      In caso di errore cancelliamo anche
+      i dati precedentemente visualizzati.
+    */
+
+    clearWindValues();
+
+    setStatus(
+      "error",
+      "ERRORE DATI"
+    );
 
   }
 
 }
 
 
-// Primo caricamento
+// PRIMO CARICAMENTO
+
 loadData();
 
-// Aggiornamento ogni 5 minuti
-setInterval(loadData, 5 * 60 * 1000);
+
+// AGGIORNAMENTO AUTOMATICO OGNI 5 MINUTI
+
+setInterval(
+  loadData,
+  5 * 60 * 1000
+);
 
 </script>
 
 </body>
 </html>
+```
