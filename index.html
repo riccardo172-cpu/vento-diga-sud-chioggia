@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vento Diga Sud Chioggia</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f5f7;
+      color: #111;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 15px 0 5px;
+      font-size: 28px;
+    }
+
+    .sottotitolo {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    .contenitore {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 25px;
+      flex-wrap: wrap;
+      padding: 10px;
+    }
+
+    .riquadro {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      min-width: 180px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .titolo {
+      font-size: 17px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .valore {
+      font-size: 42px;
+      font-weight: bold;
+    }
+
+    .unita {
+      font-size: 18px;
+      color: #555;
+    }
+
+    #direzione {
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+    #gradi {
+      font-size: 20px;
+      color: #555;
+      margin-top: 5px;
+    }
+
+    #stato {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    #errore {
+      color: red;
+      margin: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>VENTO DIGA SUD</h1>
+  <div class="sottotitolo">Chioggia</div>
+
+  <div class="contenitore">
+
+    <div class="riquadro">
+      <div class="titolo">VENTO ATTUALE</div>
+      <div class="valore" id="vento">--</div>
+      <div class="unita">kn</div>
+    </div>
+
+    <div class="riquadro">
+      <div class="titolo">VENTO MASSIMO</div>
+      <div class="valore" id="massimo">--</div>
+      <div class="unita">kn</div>
+    </div>
+
+    <div class="riquadro">
+      <div class="titolo">DIREZIONE</div>
+      <div id="direzione">--</div>
+      <div id="gradi">--°</div>
+    </div>
+
+  </div>
+
+  <div id="stato">In attesa dei dati...</div>
+  <div id="errore"></div>
+
+<script>
+
+const PROXY_URL = "INSERIRE_QUI_IL_PROXY";
+
+function nomeVento(gradi) {
+
+  if (gradi >= 337.5 || gradi < 22.5) return "TRAMONTANA";
+  if (gradi < 67.5) return "GRECALE";
+  if (gradi < 112.5) return "LEVANTE";
+  if (gradi < 157.5) return "SCIROCCO";
+  if (gradi < 202.5) return "OSTRO";
+  if (gradi < 247.5) return "LIBECCIO";
+  if (gradi < 292.5) return "PONENTE";
+
+  return "MAESTRALE";
+}
+
+async function leggiVento() {
+
+  try {
+
+    document.getElementById("stato").textContent =
+      "Aggiornamento dati...";
+
+    document.getElementById("errore").textContent = "";
+
+    const risposta = await fetch(PROXY_URL + "?t=" + Date.now());
+
+    if (!risposta.ok) {
+      throw new Error("Errore HTTP " + risposta.status);
+    }
+
+    const dati = await risposta.json();
+
+    document.getElementById("vento").textContent =
+      Number(dati.vento).toFixed(1);
+
+    document.getElementById("massimo").textContent =
+      Number(dati.massimo).toFixed(1);
+
+    document.getElementById("direzione").textContent =
+      nomeVento(Number(dati.gradi));
+
+    document.getElementById("gradi").textContent =
+      Math.round(Number(dati.gradi)) + "°";
+
+    document.getElementById("stato").textContent =
+      "Ultimo aggiornamento: " +
+      new Date().toLocaleTimeString("it-IT");
+
+  } catch (errore) {
+
+    document.getElementById("stato").textContent =
+      "Dati non disponibili";
+
+    document.getElementById("errore").textContent =
+      "Errore nella lettura dei dati";
+
+    console.error(errore);
+  }
+}
+
+leggiVento();
+
+setInterval(leggiVento, 5 * 60 * 1000);
+
+</script>
+
+</body>
+</html>
