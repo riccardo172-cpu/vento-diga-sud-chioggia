@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Vento Diga Sud Chioggia</title>
 
 <style>
@@ -188,18 +187,21 @@ html, body {
 
   <div class="content">
 
+    <!-- VENTO MINIMO -->
     <div class="panel">
-      <div class="label">VENTO ADESSO</div>
+      <div class="label">VENTO MINIMO</div>
       <div class="value" id="wind">--</div>
       <div class="unit">nodi</div>
     </div>
 
+    <!-- VENTO MASSIMO -->
     <div class="panel">
       <div class="label">VENTO MAX</div>
       <div class="value" id="maxWind">--</div>
       <div class="unit">nodi</div>
     </div>
 
+    <!-- DIREZIONE -->
     <div class="panel">
 
       <div class="label">DIREZIONE</div>
@@ -255,23 +257,28 @@ async function aggiornaVento() {
 
     const data = result.data;
 
+    // VENTO MINIMO
     document.getElementById("wind").textContent =
-      data.windKnots.toFixed(1);
+      data.minKnots.toFixed(1);
 
+    // VENTO MASSIMO
     document.getElementById("maxWind").textContent =
       data.maxKnots.toFixed(1);
 
+    // DIREZIONE
     document.getElementById("directionName").textContent =
       data.directionName;
 
     document.getElementById("degrees").textContent =
       Math.round(data.direction) + "°";
 
+    // FRECCIA BUSSOLA
     document.getElementById("arrow").style.transform =
       "translate(-50%, -100%) rotate(" +
       data.direction +
       "deg)";
 
+    // ORA
     document.getElementById("time").textContent =
       data.timestamp;
 
@@ -290,8 +297,12 @@ async function aggiornaVento() {
   }
 }
 
+
+// Prima lettura
 aggiornaVento();
 
+
+// Aggiornamento ogni 5 minuti
 setInterval(
   aggiornaVento,
   5 * 60 * 1000
