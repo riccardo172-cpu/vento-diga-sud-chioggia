@@ -1,183 +1,301 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vento Diga Sud Chioggia</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f2f5f7;
-      color: #111;
-      text-align: center;
-    }
+<title>Vento Diga Sud Chioggia</title>
 
-    h1 {
-      margin: 15px 0 5px;
-      font-size: 28px;
-    }
+<style>
+* {
+  box-sizing: border-box;
+}
 
-    .sottotitolo {
-      font-size: 16px;
-      color: #555;
-      margin-bottom: 15px;
-    }
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  background: #071923;
+  color: white;
+}
 
-    .contenitore {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 25px;
-      flex-wrap: wrap;
-      padding: 10px;
-    }
+.app {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-    .riquadro {
-      background: white;
-      border-radius: 15px;
-      padding: 20px;
-      min-width: 180px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
+.header {
+  height: 16%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #31505d;
+}
 
-    .titolo {
-      font-size: 17px;
-      color: #555;
-      margin-bottom: 10px;
-    }
+.header h1 {
+  margin: 0;
+  font-size: clamp(22px, 3vw, 38px);
+  letter-spacing: 2px;
+}
 
-    .valore {
-      font-size: 42px;
-      font-weight: bold;
-    }
+.content {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+}
 
-    .unita {
-      font-size: 18px;
-      color: #555;
-    }
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #31505d;
+  padding: 15px;
+}
 
-    #direzione {
-      font-size: 25px;
-      font-weight: bold;
-    }
+.panel:last-child {
+  border-right: none;
+}
 
-    #gradi {
-      font-size: 20px;
-      color: #555;
-      margin-top: 5px;
-    }
+.label {
+  font-size: clamp(14px, 1.7vw, 22px);
+  letter-spacing: 2px;
+  opacity: 0.75;
+  margin-bottom: 10px;
+}
 
-    #stato {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #555;
-    }
+.value {
+  font-size: clamp(42px, 7vw, 85px);
+  font-weight: bold;
+}
 
-    #errore {
-      color: red;
-      margin: 15px;
-      font-weight: bold;
-    }
-  </style>
+.unit {
+  font-size: clamp(16px, 2vw, 26px);
+  opacity: 0.75;
+}
+
+.direction {
+  font-size: clamp(25px, 3.5vw, 48px);
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.degrees {
+  font-size: clamp(18px, 2.2vw, 30px);
+  opacity: 0.8;
+}
+
+.compass {
+  position: relative;
+  width: min(28vw, 260px);
+  height: min(28vw, 260px);
+  min-width: 150px;
+  min-height: 150px;
+  border: 4px solid white;
+  border-radius: 50%;
+  margin-top: 15px;
+}
+
+.compass span {
+  position: absolute;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.north {
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.east {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.south {
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.west {
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.arrow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 42%;
+  background: white;
+  transform-origin: center bottom;
+  transform: translate(-50%, -100%) rotate(0deg);
+  border-radius: 5px;
+}
+
+.arrow::before {
+  content: "";
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-bottom: 22px solid white;
+}
+
+.center {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.footer {
+  height: 12%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #31505d;
+  font-size: clamp(12px, 1.5vw, 18px);
+  opacity: 0.7;
+}
+</style>
 </head>
 
 <body>
 
-  <h1>VENTO DIGA SUD</h1>
-  <div class="sottotitolo">Chioggia</div>
+<div class="app">
 
-  <div class="contenitore">
+  <div class="header">
+    <h1>VENTO DIGA SUD CHIOGGIA</h1>
+  </div>
 
-    <div class="riquadro">
-      <div class="titolo">VENTO ATTUALE</div>
-      <div class="valore" id="vento">--</div>
-      <div class="unita">kn</div>
+  <div class="content">
+
+    <div class="panel">
+      <div class="label">VENTO ADESSO</div>
+      <div class="value" id="wind">--</div>
+      <div class="unit">nodi</div>
     </div>
 
-    <div class="riquadro">
-      <div class="titolo">VENTO MASSIMO</div>
-      <div class="valore" id="massimo">--</div>
-      <div class="unita">kn</div>
+    <div class="panel">
+      <div class="label">VENTO MAX</div>
+      <div class="value" id="maxWind">--</div>
+      <div class="unit">nodi</div>
     </div>
 
-    <div class="riquadro">
-      <div class="titolo">DIREZIONE</div>
-      <div id="direzione">--</div>
-      <div id="gradi">--°</div>
+    <div class="panel">
+
+      <div class="label">DIREZIONE</div>
+
+      <div class="direction" id="directionName">--</div>
+
+      <div class="degrees" id="degrees">--°</div>
+
+      <div class="compass">
+
+        <span class="north">N</span>
+        <span class="east">E</span>
+        <span class="south">S</span>
+        <span class="west">O</span>
+
+        <div class="arrow" id="arrow"></div>
+
+        <div class="center"></div>
+
+      </div>
+
     </div>
 
   </div>
 
-  <div id="stato">In attesa dei dati...</div>
-  <div id="errore"></div>
+  <div class="footer">
+    Ultimo aggiornamento: <span id="time">--</span>
+  </div>
+
+</div>
 
 <script>
 
-const PROXY_URL = "INSERIRE_QUI_IL_PROXY";
+const WORKER_URL =
+  "https://vento-diga-sud.riccardo172.workers.dev/";
 
-function nomeVento(gradi) {
-
-  if (gradi >= 337.5 || gradi < 22.5) return "TRAMONTANA";
-  if (gradi < 67.5) return "GRECALE";
-  if (gradi < 112.5) return "LEVANTE";
-  if (gradi < 157.5) return "SCIROCCO";
-  if (gradi < 202.5) return "OSTRO";
-  if (gradi < 247.5) return "LIBECCIO";
-  if (gradi < 292.5) return "PONENTE";
-
-  return "MAESTRALE";
-}
-
-async function leggiVento() {
+async function aggiornaVento() {
 
   try {
 
-    document.getElementById("stato").textContent =
-      "Aggiornamento dati...";
+    const response = await fetch(
+      WORKER_URL + "?t=" + Date.now(),
+      {
+        cache: "no-store"
+      }
+    );
 
-    document.getElementById("errore").textContent = "";
+    const result = await response.json();
 
-    const risposta = await fetch(PROXY_URL + "?t=" + Date.now());
-
-    if (!risposta.ok) {
-      throw new Error("Errore HTTP " + risposta.status);
+    if (!result.ok) {
+      throw new Error(result.error || "Errore dati");
     }
 
-    const dati = await risposta.json();
+    const data = result.data;
 
-    document.getElementById("vento").textContent =
-      Number(dati.vento).toFixed(1);
+    document.getElementById("wind").textContent =
+      data.windKnots.toFixed(1);
 
-    document.getElementById("massimo").textContent =
-      Number(dati.massimo).toFixed(1);
+    document.getElementById("maxWind").textContent =
+      data.maxKnots.toFixed(1);
 
-    document.getElementById("direzione").textContent =
-      nomeVento(Number(dati.gradi));
+    document.getElementById("directionName").textContent =
+      data.directionName;
 
-    document.getElementById("gradi").textContent =
-      Math.round(Number(dati.gradi)) + "°";
+    document.getElementById("degrees").textContent =
+      Math.round(data.direction) + "°";
 
-    document.getElementById("stato").textContent =
-      "Ultimo aggiornamento: " +
-      new Date().toLocaleTimeString("it-IT");
+    document.getElementById("arrow").style.transform =
+      "translate(-50%, -100%) rotate(" +
+      data.direction +
+      "deg)";
 
-  } catch (errore) {
+    document.getElementById("time").textContent =
+      data.timestamp;
 
-    document.getElementById("stato").textContent =
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    document.getElementById("wind").textContent = "--";
+    document.getElementById("maxWind").textContent = "--";
+    document.getElementById("directionName").textContent = "ERRORE";
+    document.getElementById("degrees").textContent = "";
+    document.getElementById("time").textContent =
       "Dati non disponibili";
-
-    document.getElementById("errore").textContent =
-      "Errore nella lettura dei dati";
-
-    console.error(errore);
   }
 }
 
-leggiVento();
+aggiornaVento();
 
-setInterval(leggiVento, 5 * 60 * 1000);
+setInterval(
+  aggiornaVento,
+  5 * 60 * 1000
+);
 
 </script>
 
