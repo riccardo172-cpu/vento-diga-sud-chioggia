@@ -1,660 +1,533 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>Vento Diga Sud Chioggia</title>
 
 <style>
-
 * {
   box-sizing: border-box;
 }
 
-html,
-body {
+html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   min-height: 100%;
-  overflow: auto;
-
-  font-family: Arial, sans-serif;
-
-  background: #071923;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #071522;
   color: white;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 0%, #123b56 0%, #071522 45%, #040d14 100%);
 }
 
 .app {
   width: 100%;
+  max-width: 520px;
   min-height: 100vh;
-
+  padding: 22px 18px 18px;
   display: flex;
   flex-direction: column;
 }
 
+/* TITOLO */
+
 .header {
-  height: 16vh;
-  min-height: 70px;
+  text-align: center;
+  margin-bottom: 22px;
+}
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-bottom: 1px solid #31505d;
+.header .small {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #75b9d8;
+  margin-bottom: 6px;
 }
 
 .header h1 {
   margin: 0;
+  font-size: 25px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
 
-  font-size: clamp(22px, 3vw, 38px);
+.header .location {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #8ca5b5;
+}
 
-  letter-spacing: 2px;
+/* RIQUADRI VENTO */
 
+.wind-boxes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.wind-box {
+  background: rgba(17, 42, 57, 0.88);
+  border: 1px solid rgba(93, 166, 199, 0.25);
+  border-radius: 18px;
+  padding: 17px 12px;
   text-align: center;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.25);
 }
 
-.content {
-  flex: 1;
-
-  min-height: 65vh;
-
-  display: flex;
-  align-items: stretch;
-}
-
-.panel {
-  flex: 1;
-
-  display: flex;
-  flex-direction: column;
-
-  align-items: center;
-  justify-content: center;
-
-  border-right: 1px solid #31505d;
-
-  padding: 15px;
-}
-
-.panel:last-child {
-  border-right: none;
-}
-
-.label {
-  font-size: clamp(14px, 1.7vw, 22px);
-
+.wind-label {
+  font-size: 11px;
   letter-spacing: 2px;
-
-  opacity: 0.75;
-
-  margin-bottom: 10px;
-
-  text-align: center;
-}
-
-.value {
-  font-size: clamp(42px, 7vw, 85px);
-
+  color: #7fb9d5;
   font-weight: bold;
 }
 
-.unit {
-  font-size: clamp(16px, 2vw, 26px);
-
-  opacity: 0.75;
+.wind-value {
+  margin-top: 7px;
+  font-size: 38px;
+  line-height: 1;
+  font-weight: 700;
 }
 
-.direction {
-  font-size: clamp(25px, 3.5vw, 48px);
+.wind-unit {
+  font-size: 13px;
+  color: #9eb4c1;
+  margin-top: 5px;
+}
 
-  font-weight: bold;
+.wind-ms {
+  font-size: 12px;
+  color: #6f8b9b;
+  margin-top: 7px;
+}
 
-  margin-bottom: 5px;
+/* BUSSOLA */
 
+.compass-section {
+  margin-top: 22px;
+  background: rgba(10, 30, 43, 0.82);
+  border: 1px solid rgba(93, 166, 199, 0.22);
+  border-radius: 22px;
+  padding: 20px 15px 18px;
   text-align: center;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
 }
 
-.degrees {
-  font-size: clamp(18px, 2.2vw, 30px);
-
-  opacity: 0.8;
+.direction-title {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #7fb9d5;
+  font-weight: bold;
+  margin-bottom: 14px;
 }
 
 .compass {
+  width: min(65vw, 270px);
+  height: min(65vw, 270px);
+  max-width: 270px;
+  max-height: 270px;
+  min-width: 210px;
+  min-height: 210px;
+  margin: auto;
   position: relative;
-
-  width: min(28vw, 260px);
-  height: min(28vw, 260px);
-
-  min-width: 150px;
-  min-height: 150px;
-
-  border: 4px solid white;
-
   border-radius: 50%;
-
-  margin-top: 15px;
+  border: 2px solid rgba(137, 190, 215, 0.45);
+  background:
+    radial-gradient(circle,
+      rgba(30, 74, 97, 0.65) 0%,
+      rgba(8, 28, 42, 0.9) 68%,
+      rgba(4, 15, 23, 1) 100%);
+  box-shadow:
+    inset 0 0 25px rgba(0,0,0,0.5),
+    0 0 25px rgba(49, 139, 177, 0.12);
 }
 
-.compass span {
+/* cerchi interni */
+
+.compass::before {
+  content: "";
   position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  border: 1px solid rgba(126, 181, 207, 0.18);
+}
 
+.compass::after {
+  content: "";
+  position: absolute;
+  inset: 24%;
+  border-radius: 50%;
+  border: 1px solid rgba(126, 181, 207, 0.12);
+}
+
+/* PUNTI CARDINALI */
+
+.cardinal {
+  position: absolute;
+  font-size: 13px;
   font-weight: bold;
-
-  font-size: 18px;
+  color: #b8d6e4;
+  z-index: 4;
 }
 
 .north {
-  top: 8px;
+  top: 10px;
   left: 50%;
-
   transform: translateX(-50%);
 }
 
-.east {
-  right: 10px;
-  top: 50%;
-
-  transform: translateY(-50%);
-}
-
 .south {
-  bottom: 8px;
+  bottom: 10px;
   left: 50%;
-
   transform: translateX(-50%);
 }
 
 .west {
-  left: 10px;
+  left: 11px;
   top: 50%;
-
   transform: translateY(-50%);
 }
 
-.arrow {
-  position: absolute;
-
-  left: 50%;
+.east {
+  right: 11px;
   top: 50%;
-
-  width: 4px;
-  height: 42%;
-
-  background: white;
-
-  transform-origin: center bottom;
-
-  transform:
-    translate(-50%, -100%)
-    rotate(0deg);
-
-  border-radius: 5px;
+  transform: translateY(-50%);
 }
 
-.arrow::before {
-  content: "";
+/* tacche */
 
+.tick {
   position: absolute;
-
-  top: -15px;
+  width: 2px;
+  height: 8px;
+  background: rgba(155, 199, 217, 0.55);
   left: 50%;
+  top: 6px;
+  transform-origin: 50% calc((min(65vw, 270px) / 2) - 6px);
+}
 
-  transform: translateX(-50%);
+/* FRECCIA */
 
+.arrow-container {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.arrow {
+  width: 0;
+  height: 0;
   border-left: 11px solid transparent;
   border-right: 11px solid transparent;
-  border-bottom: 22px solid white;
+  border-bottom: 92px solid #63c4ed;
+  filter: drop-shadow(0 0 7px rgba(74,190,235,0.65));
+  transform-origin: 50% 50%;
+  position: relative;
+  z-index: 5;
 }
 
-.center {
+.arrow::after {
+  content: "";
   position: absolute;
-
-  width: 16px;
-  height: 16px;
-
-  background: white;
-
-  border-radius: 50%;
-
-  left: 50%;
-  top: 50%;
-
-  transform: translate(-50%, -50%);
+  left: -11px;
+  top: 88px;
+  width: 0;
+  height: 0;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-top: 25px solid rgba(99,196,237,0.25);
 }
 
-.footer {
-  min-height: 70px;
+/* CENTRO */
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.compass-center {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #d8f4ff;
+  border: 4px solid #2b7799;
+  z-index: 7;
+  box-shadow: 0 0 12px rgba(99,196,237,0.6);
+}
 
-  border-top: 1px solid #31505d;
+.direction-name {
+  margin-top: 17px;
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
 
-  font-size: clamp(12px, 1.5vw, 18px);
+.direction-degrees {
+  margin-top: 4px;
+  font-size: 15px;
+  color: #91b6c8;
+}
 
-  opacity: 0.8;
+/* STATO */
 
-  padding: 10px;
-
+.status {
+  margin-top: 18px;
   text-align: center;
 }
 
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: 20px;
+  background: rgba(42, 132, 163, 0.13);
+  border: 1px solid rgba(86, 174, 207, 0.18);
+  color: #7fc5df;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
 
-/* ADATTAMENTO TELEFONO */
+.live-dot {
+  width: 7px;
+  height: 7px;
+  background: #4fc3df;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #4fc3df;
+}
 
-@media (max-width: 700px) {
+/* FOOTER */
+
+.footer {
+  margin-top: auto;
+  padding-top: 20px;
+  text-align: center;
+  color: #607987;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.footer strong {
+  color: #8099a7;
+  font-weight: normal;
+}
+
+/* SCHERMI MOLTO PICCOLI */
+
+@media (max-height: 700px) {
+
+  .app {
+    padding-top: 14px;
+  }
 
   .header {
-    height: 12vh;
-    min-height: 60px;
+    margin-bottom: 14px;
   }
 
-  .header h1 {
-    font-size: 20px;
-    letter-spacing: 1px;
-  }
-
-  .content {
-    min-height: 72vh;
-  }
-
-  .panel {
-    padding: 8px;
-  }
-
-  .value {
-    font-size: 42px;
-  }
-
-  .direction {
-    font-size: 24px;
+  .compass-section {
+    margin-top: 14px;
+    padding-top: 14px;
+    padding-bottom: 12px;
   }
 
   .compass {
-    width: 150px;
-    height: 150px;
+    min-width: 180px;
+    min-height: 180px;
+    width: min(55vw, 220px);
+    height: min(55vw, 220px);
+  }
 
-    min-width: 150px;
-    min-height: 150px;
-
+  .direction-name {
     margin-top: 10px;
   }
 
-  .footer {
-    min-height: 60px;
-
-    font-size: 13px;
+  .arrow {
+    border-bottom-width: 72px;
   }
 }
-
 </style>
-
 </head>
-
 
 <body>
 
 <div class="app">
 
-
-  <!-- TITOLO -->
-
   <div class="header">
-
-    <h1>
-      VENTO DIGA SUD CHIOGGIA
-    </h1>
-
+    <div class="small">STAZIONE METEOROLOGICA</div>
+    <h1>VENTO DIGA SUD</h1>
+    <div class="location">Chioggia · Sottomarina</div>
   </div>
 
+  <div class="wind-boxes">
 
-  <!-- DATI -->
-
-  <div class="content">
-
-
-    <!-- VENTO MEDIO -->
-
-    <div class="panel">
-
-      <div class="label">
-        VENTO MEDIO
+    <div class="wind-box">
+      <div class="wind-label">VENTO MEDIO</div>
+      <div class="wind-value" id="windKnots">--</div>
+      <div class="wind-unit">kn</div>
+      <div class="wind-ms">
+        <span id="windMs">--</span> m/s
       </div>
-
-      <div
-        class="value"
-        id="wind">
-        --
-      </div>
-
-      <div class="unit">
-        nodi
-      </div>
-
     </div>
 
-
-    <!-- VENTO MAX -->
-
-    <div class="panel">
-
-      <div class="label">
-        VENTO MAX
+    <div class="wind-box">
+      <div class="wind-label">VENTO MAX</div>
+      <div class="wind-value" id="maxKnots">--</div>
+      <div class="wind-unit">kn</div>
+      <div class="wind-ms">
+        <span id="maxMs">--</span> m/s
       </div>
-
-      <div
-        class="value"
-        id="maxWind">
-        --
-      </div>
-
-      <div class="unit">
-        nodi
-      </div>
-
-    </div>
-
-
-    <!-- DIREZIONE -->
-
-    <div class="panel">
-
-      <div class="label">
-        DIREZIONE
-      </div>
-
-      <div
-        class="direction"
-        id="directionName">
-        --
-      </div>
-
-      <div
-        class="degrees"
-        id="degrees">
-        --°
-      </div>
-
-
-      <!-- BUSSOLA -->
-
-      <div class="compass">
-
-        <span class="north">
-          N
-        </span>
-
-        <span class="east">
-          E
-        </span>
-
-        <span class="south">
-          S
-        </span>
-
-        <span class="west">
-          O
-        </span>
-
-
-        <div
-          class="arrow"
-          id="arrow">
-        </div>
-
-
-        <div class="center">
-        </div>
-
-      </div>
-
     </div>
 
   </div>
 
+  <div class="compass-section">
 
-  <!-- ORARIO -->
+    <div class="direction-title">DIREZIONE DEL VENTO</div>
+
+    <div class="compass" id="compass">
+
+      <div class="cardinal north">N</div>
+      <div class="cardinal east">E</div>
+      <div class="cardinal south">S</div>
+      <div class="cardinal west">O</div>
+
+      <div class="arrow-container">
+        <div class="arrow" id="arrow"></div>
+      </div>
+
+      <div class="compass-center"></div>
+
+    </div>
+
+    <div class="direction-name" id="directionName">
+      --
+    </div>
+
+    <div class="direction-degrees">
+      <span id="directionDegrees">--</span>°
+    </div>
+
+  </div>
+
+  <div class="status">
+    <div class="live">
+      <span class="live-dot"></span>
+      DATI AGGIORNATI
+    </div>
+  </div>
 
   <div class="footer">
-
-    Ultimo aggiornamento:&nbsp;
-
-    <span id="time">
-      --
-    </span>
-
+    <strong>Ultimo aggiornamento:</strong><br>
+    <span id="timestamp">--</span>
+    <br>
+    Dati: Comune di Venezia · Diga Sud Chioggia
   </div>
 
-
 </div>
-
 
 <script>
 
 const WORKER_URL =
   "https://vento-diga-sud.riccardo172.workers.dev/";
 
+function formatTimestamp(timestamp) {
 
-async function aggiornaVento() {
+  if (!timestamp) {
+    return "--";
+  }
+
+  // Il dato della stazione è espresso sempre in CET (UTC+1).
+  const fixedCET = timestamp.replace(" ", "T") + "+01:00";
+
+  const date = new Date(fixedCET);
+
+  if (isNaN(date.getTime())) {
+    return timestamp;
+  }
+
+  return date.toLocaleString("it-IT", {
+    timeZone: "Europe/Rome",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  });
+}
+
+
+async function loadData() {
 
   try {
 
-    const response =
-      await fetch(
-        WORKER_URL +
-        "?t=" +
-        Date.now(),
-        {
-          cache: "no-store"
-        }
-      );
+    const response = await fetch(
+      WORKER_URL + "?t=" + Date.now(),
+      {
+        cache: "no-store"
+      }
+    );
 
+    if (!response.ok) {
+      throw new Error("Errore HTTP " + response.status);
+    }
 
-    const result =
-      await response.json();
-
+    const result = await response.json();
 
     if (!result.ok) {
-
-      throw new Error(
-        result.error ||
-        "Errore dati"
-      );
-
+      throw new Error(result.error || "Errore dati");
     }
 
+    const data = result.data;
 
-    const data =
-      result.data;
+    document.getElementById("windKnots").textContent =
+      Number(data.windKnots).toFixed(1);
 
+    document.getElementById("windMs").textContent =
+      Number(data.windMs).toFixed(1);
 
-    /* VENTO MEDIO */
+    document.getElementById("maxKnots").textContent =
+      Number(data.maxKnots).toFixed(1);
 
-    document
-      .getElementById("wind")
-      .textContent =
-      Number(data.windKnots)
-        .toFixed(1);
+    document.getElementById("maxMs").textContent =
+      Number(data.maxMs).toFixed(1);
 
-
-    /* VENTO MAX */
-
-    document
-      .getElementById("maxWind")
-      .textContent =
-      Number(data.maxKnots)
-        .toFixed(1);
-
-
-    /* DIREZIONE */
-
-    document
-      .getElementById("directionName")
-      .textContent =
+    document.getElementById("directionName").textContent =
       data.directionName;
 
+    document.getElementById("directionDegrees").textContent =
+      Math.round(data.direction);
 
-    document
-      .getElementById("degrees")
-      .textContent =
-      Math.round(
-        data.direction
-      ) + "°";
+    document.getElementById("arrow").style.transform =
+      "rotate(" + Number(data.direction) + "deg)";
 
+    document.getElementById("timestamp").textContent =
+      formatTimestamp(data.timestamp);
 
-    /* BUSSOLA */
-
-    document
-      .getElementById("arrow")
-      .style.transform =
-      "translate(-50%, -100%) rotate(" +
-      data.direction +
-      "deg)";
-
-
-    /*
-      ORARIO DELLA STAZIONE
-
-      La stazione fornisce sempre
-      l'orario in CET (UTC+1).
-
-      Europe/Rome applica automaticamente
-      l'ora legale italiana quando necessario.
-
-      Esempio estivo:
-      stazione 15:50
-      app       16:50
-
-      Esempio invernale:
-      stazione 15:50
-      app       15:50
-    */
-
-
-    const parti =
-      data.timestamp.split(" ");
-
-
-    if (
-      parti.length >= 2
-    ) {
-
-      const dataPart =
-        parti[0];
-
-      const oraPart =
-        parti[1];
-
-
-      const timestampCET =
-        dataPart +
-        "T" +
-        oraPart +
-        "+01:00";
-
-
-      const dataOra =
-        new Date(
-          timestampCET
-        );
-
-
-      document
-        .getElementById("time")
-        .textContent =
-        dataOra.toLocaleString(
-          "it-IT",
-          {
-            timeZone:
-              "Europe/Rome",
-
-            day:
-              "2-digit",
-
-            month:
-              "2-digit",
-
-            year:
-              "numeric",
-
-            hour:
-              "2-digit",
-
-            minute:
-              "2-digit",
-
-            second:
-              "2-digit"
-          }
-        );
-
-    }
-
-
-  }
-
-  catch (error) {
+  } catch (error) {
 
     console.error(error);
 
-
-    document
-      .getElementById("wind")
-      .textContent =
-      "--";
-
-
-    document
-      .getElementById("maxWind")
-      .textContent =
-      "--";
-
-
-    document
-      .getElementById("directionName")
-      .textContent =
-      "ERRORE";
-
-
-    document
-      .getElementById("degrees")
-      .textContent =
-      "";
-
-
-    document
-      .getElementById("time")
-      .textContent =
-      "Dati non disponibili";
+    document.getElementById("directionName").textContent =
+      "ERRORE DATI";
 
   }
 
 }
 
 
-/* PRIMA LETTURA */
+// Primo caricamento
+loadData();
 
-aggiornaVento();
-
-
-/* AGGIORNAMENTO OGNI 5 MINUTI */
-
-setInterval(
-  aggiornaVento,
-  5 * 60 * 1000
-);
+// Aggiornamento ogni 5 minuti
+setInterval(loadData, 5 * 60 * 1000);
 
 </script>
 
-
 </body>
-
 </html>
