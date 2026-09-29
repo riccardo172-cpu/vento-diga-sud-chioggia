@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -278,9 +279,24 @@ async function aggiornaVento() {
       data.direction +
       "deg)";
 
-    // ORA
+    // ORARIO ITALIANO
+    // Il dato del Comune è in UTC.
+    // Europe/Rome gestisce automaticamente CET in inverno
+    // e CEST in estate.
+    const dataUTC = new Date(
+      data.timestamp.replace(" ", "T") + "Z"
+    );
+
     document.getElementById("time").textContent =
-      data.timestamp;
+      dataUTC.toLocaleString("it-IT", {
+        timeZone: "Europe/Rome",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
 
   }
 
@@ -312,3 +328,4 @@ setInterval(
 
 </body>
 </html>
+```
