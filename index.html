@@ -1,175 +1,560 @@
-```javascript
-const SOURCE_URL =
-  "https://www.comune.venezia.it/sites/default/files/publicCPSM2/stazioni/temporeale/Diga_Sud_Chioggia.html";
+<!DOCTYPE html>
+<html lang="it">
 
-export default {
-  async fetch(request) {
+<head>
 
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: corsHeaders()
-      });
-    }
+<meta charset="UTF-8">
 
-    if (request.method !== "GET") {
-      return new Response("Method Not Allowed", {
-        status: 405,
-        headers: corsHeaders()
-      });
-    }
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-    try {
+<title>Vento Diga Sud Chioggia</title>
 
-      const sourceUrl =
-        SOURCE_URL + "?t=" + Date.now();
+<style>
 
-      const response = await fetch(sourceUrl, {
-        headers: {
-          "User-Agent": "Mozilla/5.0"
-        },
-        cache: "no-store"
-      });
+* {
+  box-sizing: border-box;
+}
 
-      if (!response.ok) {
-        throw new Error(
-          "Errore fonte Comune: HTTP " + response.status
-        );
-      }
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 
-      const html = await response.text();
+  font-family: Arial, sans-serif;
 
-      const rows = [
-        ...html.matchAll(
-          /<tr>\s*<td>([^<]+)<\/td>\s*<td>[^<]*<\/td>\s*<td>(-?\d+(?:\.\d+)?)<\/td>\s*<td>(-?\d+(?:\.\d+)?)<\/td>\s*<td>(-?\d+(?:\.\d+)?)<\/td>\s*<\/tr>/gi
-        )
-      ];
+  background: #071923;
+  color: white;
+}
 
-      if (!rows.length) {
-        throw new Error(
-          "Nessun dato vento trovato nella pagina del Comune"
-        );
-      }
+.app {
+  width: 100%;
+  height: 100vh;
 
-      const last = rows[rows.length - 1];
+  display: flex;
+  flex-direction: column;
+}
 
-      const timestamp = last[1].trim();
+.header {
+  height: 16%;
 
-      // Direzione del vento
-      const direction = Number(last[2]);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-      // Vento medio 10 minuti
-      const windMs = Number(last[3]);
+  border-bottom: 1px solid #31505d;
+}
 
-      // Vento massimo / raffica
-      const maxMs = Number(last[4]);
+.header h1 {
+  margin: 0;
 
-      const windKnots =
-        Math.round(windMs * 1.94384 * 10) / 10;
+  font-size: clamp(22px, 3vw, 38px);
 
-      const maxKnots =
-        Math.round(maxMs * 1.94384 * 10) / 10;
+  letter-spacing: 2px;
+}
 
-      const directionName =
-        getDirectionName(direction);
+.content {
+  flex: 1;
 
-      return json({
-        ok: true,
+  display: flex;
+  align-items: stretch;
+}
 
-        data: {
-          timestamp: timestamp,
+.panel {
+  flex: 1;
 
-          direction: direction,
-          directionName: directionName,
+  display: flex;
+  flex-direction: column;
 
-          windMs: windMs,
-          windKnots: windKnots,
+  align-items: center;
+  justify-content: center;
 
-          maxMs: maxMs,
-          maxKnots: maxKnots
-        }
-      });
+  border-right: 1px solid #31505d;
 
-    } catch (error) {
+  padding: 15px;
+}
 
-      return json(
+.panel:last-child {
+  border-right: none;
+}
+
+.label {
+  font-size: clamp(14px, 1.7vw, 22px);
+
+  letter-spacing: 2px;
+
+  opacity: 0.75;
+
+  margin-bottom: 10px;
+}
+
+.value {
+  font-size: clamp(42px, 7vw, 85px);
+
+  font-weight: bold;
+}
+
+.unit {
+  font-size: clamp(16px, 2vw, 26px);
+
+  opacity: 0.75;
+}
+
+.direction {
+  font-size: clamp(25px, 3.5vw, 48px);
+
+  font-weight: bold;
+
+  margin-bottom: 5px;
+}
+
+.degrees {
+  font-size: clamp(18px, 2.2vw, 30px);
+
+  opacity: 0.8;
+}
+
+.compass {
+  position: relative;
+
+  width: min(28vw, 260px);
+  height: min(28vw, 260px);
+
+  min-width: 150px;
+  min-height: 150px;
+
+  border: 4px solid white;
+
+  border-radius: 50%;
+
+  margin-top: 15px;
+}
+
+.compass span {
+  position: absolute;
+
+  font-weight: bold;
+
+  font-size: 18px;
+}
+
+.north {
+  top: 8px;
+  left: 50%;
+
+  transform: translateX(-50%);
+}
+
+.east {
+  right: 10px;
+  top: 50%;
+
+  transform: translateY(-50%);
+}
+
+.south {
+  bottom: 8px;
+  left: 50%;
+
+  transform: translateX(-50%);
+}
+
+.west {
+  left: 10px;
+  top: 50%;
+
+  transform: translateY(-50%);
+}
+
+.arrow {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 4px;
+  height: 42%;
+
+  background: white;
+
+  transform-origin: center bottom;
+
+  transform: translate(-50%, -100%) rotate(0deg);
+
+  border-radius: 5px;
+}
+
+.arrow::before {
+  content: "";
+
+  position: absolute;
+
+  top: -15px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-bottom: 22px solid white;
+}
+
+.center {
+  position: absolute;
+
+  width: 16px;
+  height: 16px;
+
+  background: white;
+
+  border-radius: 50%;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+}
+
+.footer {
+  height: 12%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-top: 1px solid #31505d;
+
+  font-size: clamp(12px, 1.5vw, 18px);
+
+  opacity: 0.7;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+  <div class="header">
+
+    <h1>
+      VENTO DIGA SUD CHIOGGIA
+    </h1>
+
+  </div>
+
+
+  <div class="content">
+
+
+    <!-- VENTO MEDIO -->
+
+    <div class="panel">
+
+      <div class="label">
+        VENTO MEDIO
+      </div>
+
+      <div
+        class="value"
+        id="wind">
+        --
+      </div>
+
+      <div class="unit">
+        nodi
+      </div>
+
+    </div>
+
+
+    <!-- VENTO MAX -->
+
+    <div class="panel">
+
+      <div class="label">
+        VENTO MAX
+      </div>
+
+      <div
+        class="value"
+        id="maxWind">
+        --
+      </div>
+
+      <div class="unit">
+        nodi
+      </div>
+
+    </div>
+
+
+    <!-- DIREZIONE -->
+
+    <div class="panel">
+
+      <div class="label">
+        DIREZIONE
+      </div>
+
+      <div
+        class="direction"
+        id="directionName">
+        --
+      </div>
+
+      <div
+        class="degrees"
+        id="degrees">
+        --°
+      </div>
+
+
+      <div class="compass">
+
+        <span class="north">N</span>
+
+        <span class="east">E</span>
+
+        <span class="south">S</span>
+
+        <span class="west">O</span>
+
+
+        <div
+          class="arrow"
+          id="arrow">
+        </div>
+
+
+        <div class="center">
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="footer">
+
+    Ultimo aggiornamento:
+
+    <span id="time">
+      --
+    </span>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const WORKER_URL =
+  "https://vento-diga-sud.riccardo172.workers.dev/";
+
+
+async function aggiornaVento() {
+
+  try {
+
+    const response =
+      await fetch(
+        WORKER_URL +
+        "?t=" +
+        Date.now(),
         {
-          ok: false,
-          error: error.message || String(error)
-        },
-        500
+          cache: "no-store"
+        }
       );
+
+
+    const result =
+      await response.json();
+
+
+    if (!result.ok) {
+
+      throw new Error(
+        result.error ||
+        "Errore dati"
+      );
+
     }
+
+
+    const data =
+      result.data;
+
+
+    // VENTO MEDIO
+
+    document
+      .getElementById("wind")
+      .textContent =
+      data.windKnots.toFixed(1);
+
+
+    // VENTO MAX
+
+    document
+      .getElementById("maxWind")
+      .textContent =
+      data.maxKnots.toFixed(1);
+
+
+    // DIREZIONE
+
+    document
+      .getElementById("directionName")
+      .textContent =
+      data.directionName;
+
+
+    document
+      .getElementById("degrees")
+      .textContent =
+      Math.round(
+        data.direction
+      ) + "°";
+
+
+    // BUSSOLA
+
+    document
+      .getElementById("arrow")
+      .style.transform =
+      "translate(-50%, -100%) rotate(" +
+      data.direction +
+      "deg)";
+
+
+    // ORARIO
+    //
+    // La stazione fornisce l'orario
+    // in CET (UTC+1).
+    //
+    // Europe/Rome gestisce automaticamente
+    // l'ora legale italiana.
+
+    const parti =
+      data.timestamp.split(" ");
+
+
+    const dataPart =
+      parti[0];
+
+
+    const oraPart =
+      parti[1];
+
+
+    const timestampCET =
+      dataPart +
+      "T" +
+      oraPart +
+      "+01:00";
+
+
+    const dataOra =
+      new Date(
+        timestampCET
+      );
+
+
+    document
+      .getElementById("time")
+      .textContent =
+      dataOra.toLocaleString(
+        "it-IT",
+        {
+          timeZone:
+            "Europe/Rome",
+
+          day:
+            "2-digit",
+
+          month:
+            "2-digit",
+
+          year:
+            "numeric",
+
+          hour:
+            "2-digit",
+
+          minute:
+            "2-digit",
+
+          second:
+            "2-digit"
+        }
+      );
+
   }
-};
 
 
-function getDirectionName(deg) {
+  catch (error) {
 
-  if (deg >= 337.5 || deg < 22.5) {
-    return "TRAMONTANA";
+    console.error(error);
+
+
+    document
+      .getElementById("wind")
+      .textContent =
+      "--";
+
+
+    document
+      .getElementById("maxWind")
+      .textContent =
+      "--";
+
+
+    document
+      .getElementById("directionName")
+      .textContent =
+      "ERRORE";
+
+
+    document
+      .getElementById("degrees")
+      .textContent =
+      "";
+
+
+    document
+      .getElementById("time")
+      .textContent =
+      "Dati non disponibili";
+
   }
 
-  if (deg < 67.5) {
-    return "GRECALE";
-  }
-
-  if (deg < 112.5) {
-    return "LEVANTE";
-  }
-
-  if (deg < 157.5) {
-    return "SCIROCCO";
-  }
-
-  if (deg < 202.5) {
-    return "OSTRO";
-  }
-
-  if (deg < 247.5) {
-    return "LIBECCIO";
-  }
-
-  if (deg < 292.5) {
-    return "PONENTE";
-  }
-
-  return "MAESTRALE";
 }
 
 
-function json(data, status = 200) {
+// Prima lettura
 
-  return new Response(
-    JSON.stringify(data),
-    {
-      status: status,
-
-      headers: {
-        "content-type":
-          "application/json; charset=utf-8",
-
-        "access-control-allow-origin":
-          "*",
-
-        "cache-control":
-          "no-store"
-      }
-    }
-  );
-}
+aggiornaVento();
 
 
-function corsHeaders() {
+// Aggiornamento automatico ogni 5 minuti
 
-  return {
-    "access-control-allow-origin": "*",
+setInterval(
+  aggiornaVento,
+  5 * 60 * 1000
+);
 
-    "access-control-allow-methods":
-      "GET, OPTIONS",
+</script>
 
-    "access-control-allow-headers":
-      "Content-Type"
-  };
-}
-```
+</body>
+
+</html>
