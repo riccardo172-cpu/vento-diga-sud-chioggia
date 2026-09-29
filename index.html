@@ -1,346 +1,175 @@
-```html
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vento Diga Sud Chioggia</title>
+```javascript
+const SOURCE_URL =
+  "https://www.comune.venezia.it/sites/default/files/publicCPSM2/stazioni/temporeale/Diga_Sud_Chioggia.html";
 
-<style>
-* {
-  box-sizing: border-box;
-}
+export default {
+  async fetch(request) {
 
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: Arial, sans-serif;
-  background: #071923;
-  color: white;
-}
-
-.app {
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.header {
-  height: 16%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-bottom: 1px solid #31505d;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: clamp(22px, 3vw, 38px);
-  letter-spacing: 2px;
-}
-
-.content {
-  flex: 1;
-  display: flex;
-  align-items: stretch;
-}
-
-.panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-right: 1px solid #31505d;
-  padding: 15px;
-}
-
-.panel:last-child {
-  border-right: none;
-}
-
-.label {
-  font-size: clamp(14px, 1.7vw, 22px);
-  letter-spacing: 2px;
-  opacity: 0.75;
-  margin-bottom: 10px;
-}
-
-.value {
-  font-size: clamp(42px, 7vw, 85px);
-  font-weight: bold;
-}
-
-.unit {
-  font-size: clamp(16px, 2vw, 26px);
-  opacity: 0.75;
-}
-
-.direction {
-  font-size: clamp(25px, 3.5vw, 48px);
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.degrees {
-  font-size: clamp(18px, 2.2vw, 30px);
-  opacity: 0.8;
-}
-
-.compass {
-  position: relative;
-  width: min(28vw, 260px);
-  height: min(28vw, 260px);
-  min-width: 150px;
-  min-height: 150px;
-  border: 4px solid white;
-  border-radius: 50%;
-  margin-top: 15px;
-}
-
-.compass span {
-  position: absolute;
-  font-weight: bold;
-  font-size: 18px;
-}
-
-.north {
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.east {
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.south {
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.west {
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.arrow {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 4px;
-  height: 42%;
-  background: white;
-  transform-origin: center bottom;
-  transform: translate(-50%, -100%) rotate(0deg);
-  border-radius: 5px;
-}
-
-.arrow::before {
-  content: "";
-  position: absolute;
-  top: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 11px solid transparent;
-  border-right: 11px solid transparent;
-  border-bottom: 22px solid white;
-}
-
-.center {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  background: white;
-  border-radius: 50%;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.footer {
-  height: 12%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-top: 1px solid #31505d;
-  font-size: clamp(12px, 1.5vw, 18px);
-  opacity: 0.7;
-}
-</style>
-</head>
-
-<body>
-
-<div class="app">
-
-  <div class="header">
-    <h1>VENTO DIGA SUD CHIOGGIA</h1>
-  </div>
-
-  <div class="content">
-
-    <!-- VENTO MINIMO -->
-    <div class="panel">
-      <div class="label">VENTO MINIMO</div>
-      <div class="value" id="wind">--</div>
-      <div class="unit">nodi</div>
-    </div>
-
-    <!-- VENTO MASSIMO -->
-    <div class="panel">
-      <div class="label">VENTO MAX</div>
-      <div class="value" id="maxWind">--</div>
-      <div class="unit">nodi</div>
-    </div>
-
-    <!-- DIREZIONE -->
-    <div class="panel">
-
-      <div class="label">DIREZIONE</div>
-
-      <div class="direction" id="directionName">--</div>
-
-      <div class="degrees" id="degrees">--°</div>
-
-      <div class="compass">
-
-        <span class="north">N</span>
-        <span class="east">E</span>
-        <span class="south">S</span>
-        <span class="west">O</span>
-
-        <div class="arrow" id="arrow"></div>
-
-        <div class="center"></div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-  <div class="footer">
-    Ultimo aggiornamento: <span id="time">--</span>
-  </div>
-
-</div>
-
-<script>
-
-const WORKER_URL =
-  "https://vento-diga-sud.riccardo172.workers.dev/";
-
-async function aggiornaVento() {
-
-  try {
-
-    const response = await fetch(
-      WORKER_URL + "?t=" + Date.now(),
-      {
-        cache: "no-store"
-      }
-    );
-
-    const result = await response.json();
-
-    if (!result.ok) {
-      throw new Error(result.error || "Errore dati");
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders()
+      });
     }
 
-    const data = result.data;
+    if (request.method !== "GET") {
+      return new Response("Method Not Allowed", {
+        status: 405,
+        headers: corsHeaders()
+      });
+    }
 
-    // VENTO MINIMO
-    document.getElementById("wind").textContent =
-      data.minKnots.toFixed(1);
+    try {
 
-    // VENTO MASSIMO
-    document.getElementById("maxWind").textContent =
-      data.maxKnots.toFixed(1);
+      const sourceUrl =
+        SOURCE_URL + "?t=" + Date.now();
 
-    // DIREZIONE
-    document.getElementById("directionName").textContent =
-      data.directionName;
-
-    document.getElementById("degrees").textContent =
-      Math.round(data.direction) + "°";
-
-    // FRECCIA BUSSOLA
-    document.getElementById("arrow").style.transform =
-      "translate(-50%, -100%) rotate(" +
-      data.direction +
-      "deg)";
-
-    // ------------------------------------------------
-    // ORARIO
-    // Il timestamp della stazione è sempre espresso
-    // in CET (UTC+1).
-    //
-    // In inverno:
-    // CET -> CET = nessuna variazione
-    //
-    // In estate:
-    // CET -> CEST = +1 ora
-    // ------------------------------------------------
-
-    const parti = data.timestamp.split(" ");
-
-    const dataPart = parti[0];
-    const oraPart = parti[1];
-
-    const timestampCET =
-      dataPart + "T" + oraPart + "+01:00";
-
-    const dataOra =
-      new Date(timestampCET);
-
-    document.getElementById("time").textContent =
-      dataOra.toLocaleString("it-IT", {
-        timeZone: "Europe/Rome",
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
+      const response = await fetch(sourceUrl, {
+        headers: {
+          "User-Agent": "Mozilla/5.0"
+        },
+        cache: "no-store"
       });
 
+      if (!response.ok) {
+        throw new Error(
+          "Errore fonte Comune: HTTP " + response.status
+        );
+      }
+
+      const html = await response.text();
+
+      const rows = [
+        ...html.matchAll(
+          /<tr>\s*<td>([^<]+)<\/td>\s*<td>[^<]*<\/td>\s*<td>(-?\d+(?:\.\d+)?)<\/td>\s*<td>(-?\d+(?:\.\d+)?)<\/td>\s*<td>(-?\d+(?:\.\d+)?)<\/td>\s*<\/tr>/gi
+        )
+      ];
+
+      if (!rows.length) {
+        throw new Error(
+          "Nessun dato vento trovato nella pagina del Comune"
+        );
+      }
+
+      const last = rows[rows.length - 1];
+
+      const timestamp = last[1].trim();
+
+      // Direzione del vento
+      const direction = Number(last[2]);
+
+      // Vento medio 10 minuti
+      const windMs = Number(last[3]);
+
+      // Vento massimo / raffica
+      const maxMs = Number(last[4]);
+
+      const windKnots =
+        Math.round(windMs * 1.94384 * 10) / 10;
+
+      const maxKnots =
+        Math.round(maxMs * 1.94384 * 10) / 10;
+
+      const directionName =
+        getDirectionName(direction);
+
+      return json({
+        ok: true,
+
+        data: {
+          timestamp: timestamp,
+
+          direction: direction,
+          directionName: directionName,
+
+          windMs: windMs,
+          windKnots: windKnots,
+
+          maxMs: maxMs,
+          maxKnots: maxKnots
+        }
+      });
+
+    } catch (error) {
+
+      return json(
+        {
+          ok: false,
+          error: error.message || String(error)
+        },
+        500
+      );
+    }
+  }
+};
+
+
+function getDirectionName(deg) {
+
+  if (deg >= 337.5 || deg < 22.5) {
+    return "TRAMONTANA";
   }
 
-  catch (error) {
-
-    console.error(error);
-
-    document.getElementById("wind").textContent = "--";
-    document.getElementById("maxWind").textContent = "--";
-    document.getElementById("directionName").textContent = "ERRORE";
-    document.getElementById("degrees").textContent = "";
-    document.getElementById("time").textContent =
-      "Dati non disponibili";
+  if (deg < 67.5) {
+    return "GRECALE";
   }
+
+  if (deg < 112.5) {
+    return "LEVANTE";
+  }
+
+  if (deg < 157.5) {
+    return "SCIROCCO";
+  }
+
+  if (deg < 202.5) {
+    return "OSTRO";
+  }
+
+  if (deg < 247.5) {
+    return "LIBECCIO";
+  }
+
+  if (deg < 292.5) {
+    return "PONENTE";
+  }
+
+  return "MAESTRALE";
 }
 
 
-// Prima lettura
-aggiornaVento();
+function json(data, status = 200) {
+
+  return new Response(
+    JSON.stringify(data),
+    {
+      status: status,
+
+      headers: {
+        "content-type":
+          "application/json; charset=utf-8",
+
+        "access-control-allow-origin":
+          "*",
+
+        "cache-control":
+          "no-store"
+      }
+    }
+  );
+}
 
 
-// Aggiornamento ogni 5 minuti
-setInterval(
-  aggiornaVento,
-  5 * 60 * 1000
-);
+function corsHeaders() {
 
-</script>
+  return {
+    "access-control-allow-origin": "*",
 
-</body>
-</html>
+    "access-control-allow-methods":
+      "GET, OPTIONS",
+
+    "access-control-allow-headers":
+      "Content-Type"
+  };
+}
 ```
