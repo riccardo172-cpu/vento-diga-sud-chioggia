@@ -335,6 +335,37 @@ body {
   color: #ff8585;
 }
 
+/* PULSANTE AGGIORNA */
+
+.refresh-container {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.refresh-button {
+  display: inline-block;
+  padding: 9px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(93, 166, 199, 0.35);
+  background: rgba(17, 42, 57, 0.88);
+  color: #9fd8ed;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.refresh-button:active {
+  transform: scale(0.97);
+}
+
+.refresh-button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
 /* FOOTER */
 
 .footer {
@@ -510,6 +541,19 @@ body {
     <span id="statusText">
       CARICAMENTO DATI...
     </span>
+
+  </div>
+
+
+  <div class="refresh-container">
+
+    <button
+      class="refresh-button"
+      id="refreshButton"
+      onclick="refreshData()"
+    >
+      ↻ AGGIORNA
+    </button>
 
   </div>
 
@@ -787,12 +831,35 @@ async function loadData() {
 }
 
 
+/* AGGIORNAMENTO MANUALE */
+
+async function refreshData() {
+
+  const button =
+    document.getElementById("refreshButton");
+
+  button.disabled = true;
+  button.textContent = "AGGIORNAMENTO...";
+
+  setStatus(
+    "ok",
+    "AGGIORNAMENTO..."
+  );
+
+  await loadData();
+
+  button.disabled = false;
+  button.textContent = "↻ AGGIORNA";
+
+}
+
+
 /* CARICAMENTO INIZIALE */
 
 loadData();
 
 
-/* AGGIORNAMENTO OGNI 5 MINUTI */
+/* AGGIORNAMENTO AUTOMATICO OGNI 5 MINUTI */
 
 setInterval(
   loadData,
